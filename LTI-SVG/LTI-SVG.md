@@ -254,7 +254,7 @@ Recruiter --> UC4
 HiringManager --> UC4
 
 @enduml
-````
+```
 
 ![Caso de uso 1 - Alinear vacante](assets/CasoUso1_AlinearVacante.png)
 
