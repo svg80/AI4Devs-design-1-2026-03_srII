@@ -755,8 +755,6 @@ erDiagram
     USER ||--o{ ACTION_ITEM : owns
 ```
 
-![Modelo ER de LTI](assets/mermaid-er-diagram.png)
-
 ---
 
 # 8. Diseño del sistema a alto nivel
@@ -1100,7 +1098,6 @@ flowchart TB
     DebriefDecision --> DomainStorage
 ```
 
-![Diagrama del sistema a alto nivel](assets/DiagramaSistemaAltoNivel.png)
 
 ---
 
