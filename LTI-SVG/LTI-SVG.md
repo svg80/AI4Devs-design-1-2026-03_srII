@@ -523,7 +523,7 @@ Representa el acuerdo formal entre recruiter y hiring manager sobre una vacante 
 * `validated_at` — datetime — no — Fecha de validación final
 
 **Nota**
-En el MVP se modela una única alineación activa por vacante. Si la alineación se reabre, se actualiza la misma entidad.
+En el MVP no se mantiene histórico de alineaciones. Cada vacante tiene una única entidad `VacancyAlignment`, que puede reabrirse y actualizarse.
 
 ---
 
@@ -680,27 +680,27 @@ Representa la consolidación final de evaluación de una candidatura, incluyendo
 
 ---
 
-## 7.2 Relaciones entre entidades
+## 7.2. Relaciones entre entidades
 
-* `Organization` → `User` — **1:N** — Una organización tiene múltiples usuarios.
+* `Organization` → `User` — **1:N** — Una organización tiene múltiples usuarios internos que participan en sus procesos de selección.
 * `Organization` → `Vacancy` — **1:N** — Una organización puede gestionar múltiples vacantes.
-* `Vacancy` → `VacancyAlignment` — **1:1** — Cada vacante del MVP tiene una única alineación activa.
-* `Vacancy` → `EvaluationCriterion` — **1:N** — Cada vacante define sus criterios de evaluación.
+* `Vacancy` → `VacancyAlignment` — **1:1** — Cada vacante del MVP tiene una única definición de alineación operativa.
+* `Vacancy` → `EvaluationCriterion` — **1:N** — Cada vacante define los criterios con los que se evaluará a sus candidaturas.
 * `Vacancy` → `Application` — **1:N** — Una vacante puede recibir múltiples candidaturas.
-* `Candidate` → `Application` — **1:N** — Un candidato puede presentarse a múltiples vacantes.
-* `Application` → `Interview` — **1:N** — Una candidatura puede tener múltiples entrevistas.
-* `Application` → `Feedback` — **1:N** — Una candidatura puede recibir múltiples feedbacks.
-* `Interview` → `Feedback` — **1:1** — En el MVP, cada entrevista individual genera un único feedback principal.
-* `Feedback` → `FeedbackCriterionAssessment` — **1:N** — Cada feedback se desglosa en valoraciones por criterio.
-* `EvaluationCriterion` → `FeedbackCriterionAssessment` — **1:N** — Un criterio puede ser evaluado en múltiples feedbacks.
-* `Vacancy` → `ProcessBlocker` — **1:N** — Una vacante puede acumular múltiples bloqueos operativos.
-* `Application` → `ProcessBlocker` — **1:N** — Una candidatura puede generar bloqueos específicos.
-* `ProcessBlocker` → `ActionItem` — **1:N** — Un bloqueo puede requerir varias acciones correctivas.
-* `Application` → `Debrief` — **1:1** — Cada candidatura cerrada genera un único debrief final.
-* `User` → `Interview` — **1:N** — Un usuario puede actuar como entrevistador en múltiples entrevistas.
+* `Candidate` → `Application` — **1:N** — Un candidato puede postularse a distintas vacantes.
+* `Application` → `Interview` — **1:N** — Una candidatura puede recorrer varias entrevistas dentro del proceso.
+* `Application` → `Feedback` — **1:N** — Una candidatura puede acumular múltiples evaluaciones individuales.
+* `Interview` → `Feedback` — **1:1** — Cada entrevista genera un único feedback principal en el MVP.
+* `Feedback` → `FeedbackCriterionAssessment` — **1:N** — Cada feedback se descompone en valoraciones concretas por criterio.
+* `EvaluationCriterion` → `FeedbackCriterionAssessment` — **1:N** — Un mismo criterio puede ser evaluado en muchos feedbacks.
+* `Vacancy` → `ProcessBlocker` — **1:N** — Una vacante puede presentar múltiples bloqueos operativos a lo largo del proceso.
+* `Application` → `ProcessBlocker` — **1:N** — Una candidatura concreta puede originar bloqueos específicos.
+* `ProcessBlocker` → `ActionItem` — **1:N** — Un bloqueo puede requerir varias acciones para su resolución.
+* `Application` → `Debrief` — **1:1** — Cada candidatura cerrada genera un único debrief final en el MVP.
+* `User` → `Interview` — **1:N** — Un usuario puede conducir múltiples entrevistas.
 * `User` → `Feedback` — **1:N** — Un usuario puede emitir múltiples feedbacks.
-* `User` → `ProcessBlocker` — **1:N** — Un usuario puede ser responsable de múltiples bloqueos.
-* `User` → `ActionItem` — **1:N** — Un usuario puede tener asignadas múltiples acciones operativas.
+* `User` → `ProcessBlocker` — **1:N** — Un usuario puede ser responsable de distintos bloqueos.
+* `User` → `ActionItem` — **1:N** — Un usuario puede tener múltiples acciones asignadas.
 
 ---
 
@@ -708,23 +708,35 @@ Representa la consolidación final de evaluación de una candidatura, incluyendo
 
 ### Entidades clave
 
-* **VacancyAlignment** existe separada de `Vacancy` porque la alineación inicial es un acuerdo operativo con estado propio.
-* **EvaluationCriterion** existe separada de `Feedback` porque los criterios pertenecen a la vacante y deben reutilizarse en todas sus evaluaciones.
-* **FeedbackCriterionAssessment** se modela como entidad independiente porque añade `rating` y `evidence` a la relación entre feedback y criterio.
-* **ProcessBlocker** existe como entidad de dominio porque el MVP necesita representar bloqueos operativos explícitos.
-* **ActionItem** existe separada de `ProcessBlocker` porque un bloqueo puede requerir varias acciones con responsables y fechas distintas.
-* **Debrief** existe separada de `Feedback` porque representa la consolidación final de una candidatura y no una evaluación individual.
+* **`VacancyAlignment`** existe separada de `Vacancy` porque la alineación inicial no es solo un conjunto de campos descriptivos, sino un acuerdo operativo entre recruiter y hiring manager con estado propio.
+* **`EvaluationCriterion`** existe separada de `Feedback` porque los criterios pertenecen a la vacante y deben reutilizarse de forma consistente en todas las entrevistas y evaluaciones de esa vacante.
+* **`FeedbackCriterionAssessment`** se modela como entidad independiente porque añade información propia a la relación entre feedback y criterio: puntuación y evidencia.
+* **`ProcessBlocker`** existe como entidad de dominio porque el MVP pone el foco en identificar y gestionar explícitamente los bloqueos operativos del proceso.
+* **`ActionItem`** existe separada de `ProcessBlocker` porque un mismo bloqueo puede requerir varias acciones con responsables y vencimientos distintos.
+* **`Debrief`** existe separada de `Feedback` porque representa una consolidación final auditable de toda la candidatura, no una evaluación individual.
+* **`Feedback`** conserva referencia directa a `Application` además de `Interview` para facilitar trazabilidad y consultas de negocio sobre la candidatura, manteniendo consistencia con la entrevista asociada.
 
-### Soporte a los casos de uso
+### Cómo el modelo soporta los casos de uso
 
-* **Alineación de vacante**: `Vacancy`, `VacancyAlignment`, `EvaluationCriterion`
-* **Gestión de bloqueos**: `ProcessBlocker`, `ActionItem`, `Application`, `Vacancy`
-* **Feedback estructurado**: `Feedback`, `FeedbackCriterionAssessment`, `EvaluationCriterion`
-* **Debrief auditable**: `Debrief`, `Application`, `Feedback`
+* **Alineación de vacante**: `Vacancy`, `VacancyAlignment` y `EvaluationCriterion` permiten definir el rol, consensuar criterios y dejar una base común antes de iniciar la ejecución.
+* **Gestión de bloqueos**: `ProcessBlocker` y `ActionItem` permiten representar cuellos de botella, asignar responsabilidad y hacer seguimiento operativo sobre vacantes y candidaturas.
+* **Feedback estructurado**: `Interview`, `Feedback`, `EvaluationCriterion` y `FeedbackCriterionAssessment` permiten evaluar con estructura, comparabilidad y evidencia.
+* **Debrief auditable**: `Debrief`, apoyado por `Application` y `Feedback`, permite consolidar la evaluación y registrar una decisión final trazable.
 
 ---
 
-## 7.4 Diagrama ER del modelo
+## 7.3.b Reglas de integridad del dominio
+
+* La relación **`Vacancy -> VacancyAlignment`** se materializa lógicamente como una única alineación por vacante. En el MVP, `VacancyAlignment` es una entidad única y mutable por vacante, sin histórico.
+* La relación **`Interview -> Feedback`** se materializa lógicamente como una única evaluación principal por entrevista. No pueden existir varios feedbacks principales para la misma entrevista.
+* La relación **`Application -> Debrief`** se materializa lógicamente como un único debrief final por candidatura. No pueden coexistir varios debriefs finales para la misma candidatura.
+* En **`Feedback`**, la referencia a `application_id` debe ser consistente con la candidatura de la `Interview` referenciada por `interview_id`. Un feedback no puede pertenecer a una candidatura distinta de la entrevista que evalúa.
+* En **`ProcessBlocker`**, `application_id` es opcional porque un bloqueo puede afectar a toda la vacante o solo a una candidatura concreta, pero siempre debe pertenecer a la misma vacante referenciada por `vacancy_id`.
+* Los **`EvaluationCriterion`** de un `FeedbackCriterionAssessment` deben corresponder a la misma vacante asociada a la candidatura evaluada; no tiene sentido evaluar una candidatura con criterios de otra vacante.
+
+---
+
+## 7.4. Diagrama ER del modelo
 
 ```mermaid
 erDiagram
@@ -737,6 +749,7 @@ erDiagram
     VACANCY ||--o{ PROCESS_BLOCKER : accumulates
 
     CANDIDATE ||--o{ APPLICATION : submits
+
     APPLICATION ||--o{ INTERVIEW : includes
     APPLICATION ||--o{ FEEDBACK : receives
     APPLICATION ||--o{ PROCESS_BLOCKER : may_have
@@ -751,9 +764,10 @@ erDiagram
 
     USER ||--o{ INTERVIEW : conducts
     USER ||--o{ FEEDBACK : writes
-    USER ||--o{ PROCESS_BLOCKER : resolves
-    USER ||--o{ ACTION_ITEM : owns
+    USER ||--o{ PROCESS_BLOCKER : owns
+    USER ||--o{ ACTION_ITEM : executes
 ```
+
 
 ---
 
@@ -1103,256 +1117,660 @@ flowchart TB
 
 # 9. Vista C4 del sistema LTI (MVP)
 
-## 9.1 Justificación de la elección del componente
+## 9.1 Justificación breve de la elección del componente
 
-Se elige **Orquestación del Proceso** porque es el núcleo del valor diferencial del MVP.
-Este componente gobierna el estado operativo de vacantes y candidaturas, detecta bloqueos, coordina acciones correctivas y asegura que el proceso solo avanza cuando se cumplen las condiciones necesarias.
+Se profundiza en **Orquestación del Proceso** porque concentra el control operativo del MVP: coordina el estado de una vacante en ejecución, detecta y gestiona bloqueos, y activa la información necesaria para que HR y hiring managers lleguen a una decisión final con trazabilidad. Es el punto donde más claramente se materializa la tesis de producto de **reducir fricción operativa** y **acelerar decisiones con inteligencia auditable**.
 
----
-
-## 9.2 Nivel C1 — Contexto del sistema
-
-LTI es una plataforma SaaS de recruiting utilizada por recruiters, hiring managers e interviewers para coordinar procesos de selección, estructurar la evaluación y cerrar decisiones con trazabilidad.
+## 9.2. Nivel C1 — Contexto del sistema
 
 ### Actores principales
 
-* **Recruiter**: crea vacantes, coordina el proceso, gestiona bloqueos y registra cierres
-* **Hiring Manager**: participa en la alineación de vacantes, desbloquea tareas y toma decisiones finales
-* **Interviewer**: realiza entrevistas y emite feedback estructurado
+* **HR / Recruiter**
 
-### Diagrama C1 — Contexto
+  * Define y acompaña el proceso.
+  * Usa LTI para alinear la vacante, gestionar bloqueos y consolidar decisiones.
 
-```mermaid
-C4Context
-    title C1 - Contexto del sistema LTI
+* **Hiring Manager**
 
-    Person(recruiter, "Recruiter", "Coordina vacantes, bloqueos y cierres")
-    Person(manager, "Hiring Manager", "Alinea vacantes y participa en decisiones")
-    Person(interviewer, "Interviewer", "Realiza entrevistas y emite feedback")
+  * Participa en la definición del perfil, seguimiento del proceso y decisión final.
+  * Usa LTI para revisar bloqueos, aportar feedback y cerrar contratación.
 
-    System(lti, "LTI", "Plataforma SaaS de recruiting para coordinar procesos, estructurar evaluación y soportar decisiones auditables")
+* **Interviewer**
 
-    Rel(recruiter, lti, "Usa")
-    Rel(manager, lti, "Usa")
-    Rel(interviewer, lti, "Usa")
+  * Conduce entrevistas dentro del proceso de selección.
+  * Usa LTI para emitir feedback guiado y comparativo.
+
+* **Leadership / Stakeholder de contratación**
+
+  * Consulta estado, riesgos y decisiones finales cuando aplica.
+  * Usa LTI como soporte auditable del proceso.
+
+### Relación con LTI
+
+LTI actúa como plataforma central de recruiting/ATS para:
+
+* alinear una vacante antes de iniciar el proceso,
+* coordinar la ejecución operativa del proceso,
+* consolidar evaluación y decisión final de forma auditable.
+
+```plantuml
+@startuml C1_LTI_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title C1 - System Context Diagram - LTI
+
+Person(hr, "HR / Recruiter", "Configura y opera procesos de contratación")
+Person(hm, "Hiring Manager", "Alinea la vacante, sigue el proceso y decide")
+Person(interviewer, "Interviewer", "Conduce entrevistas y emite feedback estructurado")
+Person(stakeholder, "Leadership / Stakeholder", "Consulta estado y decisión final")
+
+System(lti, "LTI", "Plataforma SaaS de recruiting / ATS para alineación, orquestación, evaluación y decisión auditable")
+
+Rel(hr, lti, "Gestiona vacantes, bloqueos y decisiones")
+Rel(hm, lti, "Participa en alineación, seguimiento y cierre")
+Rel(interviewer, lti, "Registra feedback guiado")
+Rel(stakeholder, lti, "Consulta debriefs y decisiones")
+
+@enduml
 ```
 
----
-
-## 9.3 Nivel C2 — Contenedores
+## 9.3. Nivel C2 — Contenedores
 
 ### Aplicación Web LTI
 
-* **Responsabilidad**: interfaz principal del sistema
-* **Interacción principal**: canaliza acciones de usuario y presenta estado, bloqueos, evaluaciones y debriefs
+* **Responsabilidad**
 
-### Núcleo de Dominio LTI
+  * Punto de acceso de usuarios internos.
+  * Presenta flujos de alineación, seguimiento operativo, feedback y debrief.
+* **Interacción principal**
 
-* **Responsabilidad**: contiene la lógica funcional del MVP
-* **Interacción principal**: recibe acciones desde la aplicación web, consulta persistencia y consume asistencia IA
+  * Consume los módulos de negocio del sistema.
+  * Permite a HR, hiring managers e interviewers operar sobre vacantes, candidatos y decisiones.
+
+### Gestión de Vacantes y Alineación
+
+* **Responsabilidad**
+
+  * Mantener vacantes y su alineación inicial.
+  * Centralizar criterios de evaluación y acuerdos previos al inicio del proceso.
+* **Interacción principal**
+
+  * Recibe solicitudes desde la aplicación web.
+  * Proporciona contexto estructurado a Orquestación del Proceso y Evaluación y Feedback.
+
+### Orquestación del Proceso
+
+* **Responsabilidad**
+
+  * Coordinar el ciclo operativo de una vacante en ejecución.
+  * Gestionar bloqueos, acciones, hitos y estado del proceso.
+* **Interacción principal**
+
+  * Consume datos de vacante y aplicaciones.
+  * Colabora con Evaluación y Feedback y con Gestión de Debrief y Decisión para asegurar continuidad y cierre.
+
+### Evaluación y Feedback
+
+* **Responsabilidad**
+
+  * Recoger feedback guiado, evaluaciones comparables y valoraciones por criterio.
+* **Interacción principal**
+
+  * Recibe información de entrevistas y aplicaciones.
+  * Entrega evidencia evaluativa a Debrief y Decisión y señales operativas a Orquestación.
+
+### Gestión de Debrief y Decisión
+
+* **Responsabilidad**
+
+  * Consolidar evidencia evaluativa.
+  * Formalizar debrief y decisión final auditable.
+* **Interacción principal**
+
+  * Recibe inputs desde Evaluación y Feedback y estado operativo desde Orquestación del Proceso.
 
 ### Inteligencia Asistiva
 
-* **Responsabilidad**: apoya la síntesis de feedback y la detección de inconsistencias
-* **Interacción principal**: es invocada por el núcleo de dominio
+* **Responsabilidad**
 
-### Persistencia transaccional del dominio
+  * Generar apoyo analítico y síntesis auditable para alineación, feedback y debrief.
+* **Interacción principal**
 
-* **Responsabilidad**: persistencia del modelo de dominio del MVP
-* **Interacción principal**: es utilizada por el núcleo de dominio como fuente de verdad
+  * Consume información de dominio.
+  * Devuelve recomendaciones o resúmenes explicables a los módulos funcionales.
 
-### Diagrama C2 — Contenedores
+### Almacenamiento del Dominio
 
-```mermaid
-C4Container
-    title C2 - Contenedores del sistema LTI
+* **Responsabilidad**
 
-    Person(recruiter, "Recruiter", "Coordina el proceso")
-    Person(manager, "Hiring Manager", "Alinea y decide")
-    Person(interviewer, "Interviewer", "Evalúa candidatos")
+  * Persistir entidades y estado del sistema.
+* **Interacción principal**
 
-    System_Boundary(lti, "LTI") {
-        Container(web, "Aplicación Web LTI", "Web Application", "Interfaz principal para recruiters, hiring managers e interviewers")
-        Container(domain, "Núcleo de Dominio LTI", "Modular Monolith", "Gestiona vacantes, alineación, orquestación, evaluación, debrief y decisión")
-        Container(ai, "Inteligencia Asistiva", "Logical Service", "Apoya síntesis, revisión de inconsistencias y debrief")
-        ContainerDb(storage, "Persistencia transaccional del dominio", "Database", "Persistencia del modelo de dominio del MVP")
-    }
+  * Es utilizado por todos los módulos de negocio para lectura y escritura consistente del dominio.
 
-    Rel(recruiter, web, "Usa")
-    Rel(manager, web, "Usa")
-    Rel(interviewer, web, "Usa")
+```plantuml
+@startuml C2_LTI_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-    Rel(web, domain, "Consume")
-    Rel(domain, ai, "Solicita asistencia")
-    Rel(domain, storage, "Lee y escribe")
+title C2 - Container Diagram - LTI
+
+Person(hr, "HR / Recruiter")
+Person(hm, "Hiring Manager")
+Person(interviewer, "Interviewer")
+Person(stakeholder, "Leadership / Stakeholder")
+
+System_Boundary(lti, "LTI") {
+    Container(web, "Aplicación Web LTI", "Web Application", "Interfaz de operación para HR, hiring managers e interviewers")
+    Container(vacancy, "Gestión de Vacantes y Alineación", "Application Module", "Gestiona Vacancy, VacancyAlignment y EvaluationCriterion")
+    Container(orchestration, "Orquestación del Proceso", "Application Module", "Coordina estado operativo, bloqueos y acciones del proceso")
+    Container(feedback, "Evaluación y Feedback", "Application Module", "Gestiona Interview, Feedback y FeedbackCriterionAssessment")
+    Container(debrief, "Gestión de Debrief y Decisión", "Application Module", "Consolida Debrief y decisión final")
+    Container(ai, "Inteligencia Asistiva", "Application Module", "Apoyo analítico y síntesis auditable")
+    ContainerDb(storage, "Almacenamiento del Dominio", "Logical Data Store", "Persistencia de entidades de dominio")
+}
+
+Rel(hr, web, "Usa")
+Rel(hm, web, "Usa")
+Rel(interviewer, web, "Usa")
+Rel(stakeholder, web, "Usa")
+
+Rel(web, vacancy, "Consulta y actualiza")
+Rel(web, orchestration, "Consulta y actualiza")
+Rel(web, feedback, "Consulta y actualiza")
+Rel(web, debrief, "Consulta y actualiza")
+
+Rel(vacancy, storage, "Lee / escribe")
+Rel(orchestration, storage, "Lee / escribe")
+Rel(feedback, storage, "Lee / escribe")
+Rel(debrief, storage, "Lee / escribe")
+Rel(ai, storage, "Lee contexto auditable")
+
+Rel(vacancy, orchestration, "Entrega contexto de vacante y alineación")
+Rel(vacancy, feedback, "Entrega criterios y contexto evaluativo")
+Rel(orchestration, feedback, "Coordina hitos operativos y seguimiento")
+Rel(feedback, debrief, "Entrega evidencia evaluativa")
+Rel(orchestration, debrief, "Entrega estado operativo y bloqueos")
+Rel(orchestration, ai, "Solicita apoyo analítico")
+Rel(feedback, ai, "Solicita síntesis comparativa")
+Rel(debrief, ai, "Solicita síntesis auditable")
+
+@enduml
 ```
 
----
+## 9.4. Nivel C3 — Componentes del contenedor/módulo “Orquestación del Proceso”
 
-## 9.4 Nivel C3 — Componentes de Orquestación del Proceso
+### 9.4.1. Process Lifecycle Coordinator
 
-### Registro de Estado Operativo
+* **Responsabilidad**
 
-* **Responsabilidad**: mantiene el estado operativo de vacantes y candidaturas
-* **Entidades principales**: `Vacancy`, `Application`
-* **Colaboración**: trabaja con Detector de Bloqueos, Coordinador de Cierre y Persistencia transaccional
+  * Coordinar el estado operativo global de cada vacante en ejecución.
+  * Determinar transiciones válidas del proceso y sus hitos.
+* **Entidades principales**
 
-### Detector de Bloqueos
+  * `Vacancy`
+  * `Application`
+  * `Interview`
+  * `ProcessBlocker`
+  * `ActionItem`
+* **Colaboración**
 
-* **Responsabilidad**: identifica condiciones que impiden avanzar y formaliza bloqueos operativos
-* **Entidades principales**: `ProcessBlocker`, `Vacancy`, `Application`
-* **Colaboración**: usa Registro de Estado Operativo, consulta Evaluación y Feedback y activa Gestor de Acciones Correctivas
+  * Consume contexto desde Gestión de Vacantes y Alineación.
+  * Recibe señales de Evaluación y Feedback.
+  * Entrega estado consolidado a Gestión de Debrief y Decisión.
 
-### Gestor de Acciones Correctivas
+### 9.4.2. Blocker Management
 
-* **Responsabilidad**: crea, asigna y sigue acciones necesarias para resolver bloqueos
-* **Entidades principales**: `ActionItem`, `ProcessBlocker`, `User`
-* **Colaboración**: recibe bloqueos del Detector de Bloqueos y expone tareas al Publicador de Pendientes
+* **Responsabilidad**
 
-### Coordinador de Cierre
+  * Registrar, clasificar, priorizar y resolver bloqueos operativos del proceso.
+  * Mantener trazabilidad de causa, impacto y estado del bloqueo.
+* **Entidades principales**
 
-* **Responsabilidad**: valida si una candidatura está operativamente preparada para pasar a debrief y decisión
-* **Entidades principales**: `Application`, `ProcessBlocker`
-* **Colaboración**: consume estado operativo, consulta Evaluación y Feedback y habilita a Gestión de Debrief y Decisión
+  * `ProcessBlocker`
+  * `Vacancy`
+  * `Application`
+  * `ActionItem`
+* **Colaboración**
 
-### Publicador de Pendientes
+  * Trabaja con Process Lifecycle Coordinator para impactar el estado del proceso.
+  * Expone bloqueos y su resolución a la Aplicación Web.
+  * Proporciona evidencia operativa al Debrief.
 
-* **Responsabilidad**: expone a la aplicación web bloqueos, responsables y acciones pendientes
-* **Entidades principales**: `ProcessBlocker`, `ActionItem`, `Application`
-* **Colaboración**: usa información del Gestor de Acciones Correctivas y del Registro de Estado Operativo
+### 9.4.3. Action Tracking
 
-### Diagrama C3 — Componentes de Orquestación del Proceso
+* **Responsabilidad**
 
-```mermaid
-C4Component
-    title C3 - Componentes de Orquestación del Proceso
+  * Gestionar acciones derivadas de bloqueos o decisiones operativas.
+  * Asignar responsables y controlar seguimiento.
+* **Entidades principales**
 
-    Container_Boundary(domain, "Núcleo de Dominio LTI") {
-        Component(state_registry, "Registro de Estado Operativo", "Componente de dominio", "Mantiene el estado de vacantes y candidaturas")
-        Component(blocker_detector, "Detector de Bloqueos", "Componente de dominio", "Identifica condiciones que impiden avanzar")
-        Component(action_handler, "Gestor de Acciones Correctivas", "Componente de dominio", "Gestiona acciones para resolver bloqueos")
-        Component(close_gate, "Coordinador de Cierre", "Componente de dominio", "Valida preparación para cierre")
-        Component(pending_publisher, "Publicador de Pendientes", "Componente de dominio", "Expone tareas y bloqueos")
-    }
+  * `ActionItem`
+  * `ProcessBlocker`
+  * `Vacancy`
+  * `User`
+* **Colaboración**
 
-    Component_Ext(web, "Aplicación Web LTI", "Contenedor externo", "Interfaz principal del sistema")
-    Component_Ext(alignment, "Gestión de Vacantes y Alineación", "Módulo externo", "Define vacantes alineadas y criterios")
-    Component_Ext(evaluation, "Evaluación y Feedback", "Módulo externo", "Gestiona entrevistas y feedback estructurado")
-    Component_Ext(debrief, "Gestión de Debrief y Decisión", "Módulo externo", "Gestiona el cierre final de candidatura")
-    ComponentDb_Ext(storage, "Persistencia transaccional del dominio", "Persistencia", "Fuente de verdad del sistema")
+  * Es activado por Blocker Management.
+  * Retroalimenta a Process Lifecycle Coordinator con el avance operativo.
 
-    Rel(web, pending_publisher, "Consulta pendientes")
-    Rel(web, action_handler, "Ejecuta acciones")
+### 9.4.4. Process Timeline Assembler
 
-    Rel(alignment, state_registry, "Habilita vacantes alineadas")
-    Rel(state_registry, blocker_detector, "Proporciona estado")
-    Rel(blocker_detector, action_handler, "Solicita acciones")
-    Rel(action_handler, pending_publisher, "Publica tareas")
+* **Responsabilidad**
 
-    Rel(state_registry, close_gate, "Proporciona estado de candidatura")
-    Rel(blocker_detector, close_gate, "Informa bloqueos activos")
+  * Construir una visión cronológica del proceso y sus eventos relevantes.
+  * Unificar hitos, bloqueos, acciones y señales de evaluación.
+* **Entidades principales**
 
-    Rel(evaluation, blocker_detector, "Aporta señales de feedback pendiente")
-    Rel(evaluation, close_gate, "Aporta completitud de evaluación")
+  * `Vacancy`
+  * `Application`
+  * `Interview`
+  * `Feedback`
+  * `ProcessBlocker`
+  * `ActionItem`
+* **Colaboración**
 
-    Rel(close_gate, debrief, "Habilita cierre")
-    Rel(debrief, state_registry, "Actualiza estado tras decisión")
+  * Lee datos del almacenamiento del dominio.
+  * Entrega una vista de seguimiento a la Aplicación Web y contexto a Debrief.
 
-    Rel(state_registry, storage, "Lee y escribe")
-    Rel(blocker_detector, storage, "Lee y escribe")
-    Rel(action_handler, storage, "Lee y escribe")
-    Rel(close_gate, storage, "Lee")
+### 9.4.5. Operational Readiness Policy
+
+* **Responsabilidad**
+
+  * Evaluar si el proceso puede avanzar según condiciones mínimas del dominio.
+  * Evitar transiciones inconsistentes o prematuras.
+* **Entidades principales**
+
+  * `Vacancy`
+  * `VacancyAlignment`
+  * `Application`
+  * `Interview`
+  * `Feedback`
+  * `ProcessBlocker`
+* **Colaboración**
+
+  * Es invocada por Process Lifecycle Coordinator.
+  * Utiliza señales de Vacantes y Alineación y de Evaluación y Feedback.
+
+### 9.4.6. Orchestration Audit Trail
+
+* **Responsabilidad**
+
+  * Registrar decisiones operativas y cambios relevantes para trazabilidad.
+  * Asegurar reconstrucción lógica de lo ocurrido en el proceso.
+* **Entidades principales**
+
+  * `Vacancy`
+  * `Application`
+  * `ProcessBlocker`
+  * `ActionItem`
+  * `Debrief`
+* **Colaboración**
+
+  * Recibe eventos desde Lifecycle, Blocker Management y Action Tracking.
+  * Entrega evidencia auditable a Gestión de Debrief y Decisión.
+
+```plantuml
+@startuml C3_Orquestacion_Componentes
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C3 - Component Diagram - Orquestación del Proceso
+
+Container(web, "Aplicación Web LTI", "Web Application")
+Container(vacancy, "Gestión de Vacantes y Alineación", "Application Module")
+Container(feedback, "Evaluación y Feedback", "Application Module")
+Container(debrief, "Gestión de Debrief y Decisión", "Application Module")
+ContainerDb(storage, "Almacenamiento del Dominio", "Logical Data Store")
+
+Container_Boundary(orchestration, "Orquestación del Proceso") {
+    Component(lifecycle, "Process Lifecycle Coordinator", "Orchestration Component", "Coordina estado y transiciones del proceso")
+    Component(blockers, "Blocker Management", "Domain/Application Component", "Gestiona bloqueos operativos")
+    Component(actions, "Action Tracking", "Domain/Application Component", "Gestiona acciones derivadas")
+    Component(timeline, "Process Timeline Assembler", "Read Model Component", "Construye cronología operativa")
+    Component(readiness, "Operational Readiness Policy", "Policy Component", "Evalúa condiciones para avanzar")
+    Component(audit, "Orchestration Audit Trail", "Audit Component", "Mantiene trazabilidad operativa")
+}
+
+Rel(web, lifecycle, "Opera proceso")
+Rel(web, blockers, "Gestiona bloqueos")
+Rel(web, actions, "Gestiona acciones")
+Rel(web, timeline, "Consulta timeline")
+
+Rel(vacancy, lifecycle, "Entrega contexto de vacante y alineación")
+Rel(vacancy, readiness, "Entrega condiciones de alineación")
+Rel(feedback, lifecycle, "Entrega señales de evaluación")
+Rel(feedback, readiness, "Entrega estado de entrevistas/feedback")
+Rel(lifecycle, blockers, "Crea o actualiza bloqueos")
+Rel(blockers, actions, "Genera acciones")
+Rel(actions, lifecycle, "Retroalimenta avance")
+Rel(lifecycle, readiness, "Valida avance")
+Rel(lifecycle, audit, "Registra cambios")
+Rel(blockers, audit, "Registra cambios")
+Rel(actions, audit, "Registra cambios")
+Rel(timeline, storage, "Lee")
+Rel(lifecycle, storage, "Lee / escribe")
+Rel(blockers, storage, "Lee / escribe")
+Rel(actions, storage, "Lee / escribe")
+Rel(audit, storage, "Escribe")
+Rel(lifecycle, debrief, "Entrega estado operativo")
+Rel(blockers, debrief, "Entrega evidencia de bloqueos")
+Rel(timeline, debrief, "Entrega secuencia del proceso")
+
+@enduml
 ```
 
----
+## 9.5. Nivel C4 — Descomposición interna lógica del componente más relevante dentro de “Orquestación del Proceso”
 
-## 9.5 Nivel C4 — Descomposición interna del Detector de Bloqueos
+### Subcomponente elegido: Process Lifecycle Coordinator
 
-El subcomponente elegido es **Detector de Bloqueos**, por ser la pieza más representativa de la lógica diferencial de Orquestación del Proceso.
+Se elige porque es el núcleo de coordinación del módulo. Es el responsable de mantener el estado operativo consistente de la vacante y de decidir cuándo el proceso puede avanzar, detenerse o escalar bloqueos.
 
-### Catálogo de Reglas de Bloqueo
+### Elementos internos de diseño lógico
 
-* **Responsabilidad**: define las condiciones de negocio que constituyen un bloqueo operativo
-* **Relación**: es consultado por el Evaluador de Condiciones
+#### 9.5.1. Process Context Aggregate
 
-### Evaluador de Condiciones
+* **Responsabilidad**
 
-* **Responsabilidad**: analiza el estado operativo y determina si se cumple alguna regla de bloqueo
-* **Relación**: consulta el Catálogo de Reglas, consume el Estado Operativo de Proceso y produce resultados para el Registro de Bloqueos
+  * Representar el estado operativo agregado de una vacante en ejecución.
+  * Unificar progreso, hitos activos, bloqueos abiertos y señales pendientes.
+* **Relación con otros elementos**
 
-### Estado Operativo de Proceso
+  * Es consultado y evolucionado por Lifecycle Transition Policy.
+  * Se persiste a través de Process Context Repository.
+  * Emite cambios relevantes al Audit Event Registrar.
 
-* **Responsabilidad**: representa la vista consolidada del estado actual de una vacante o candidatura para su evaluación operativa
-* **Relación**: es usado por el Evaluador de Condiciones
+#### 9.5.2. Lifecycle Transition Policy
 
-### Registro de Bloqueos
+* **Responsabilidad**
 
-* **Responsabilidad**: crea, actualiza o cierra representaciones persistentes de bloqueos detectados
-* **Relación**: recibe decisiones del Evaluador, persiste bloqueos y notifica al Publicador de Eventos
+  * Determinar las transiciones válidas del estado operativo.
+  * Aplicar reglas para iniciar, pausar, reanudar o habilitar cierre del proceso.
+* **Relación con otros elementos**
 
-### Repositorio de Bloqueos
+  * Evalúa el Process Context Aggregate.
+  * Usa Readiness Validator y Blocker Impact Policy.
+  * Ordena cambios al State Consistency Guard antes de persistir.
 
-* **Responsabilidad**: abstrae el acceso persistente a `ProcessBlocker`
-* **Relación**: es usado por el Registro de Bloqueos
+#### 9.5.3. Readiness Validator
 
-### Publicador de Eventos
+* **Responsabilidad**
 
-* **Responsabilidad**: comunica la aparición, actualización o resolución de bloqueos al resto del módulo de orquestación
-* **Relación**: recibe cambios desde Registro de Bloqueos y colabora con el Gestor de Acciones Correctivas y el Publicador de Pendientes
+  * Validar precondiciones de negocio para avanzar en el proceso.
+  * Verificar disponibilidad mínima de alineación, entrevistas, feedback o ausencia de bloqueos críticos.
+* **Relación con otros elementos**
 
-### Diagrama C4 — Descomposición lógica interna
+  * Es invocado por Lifecycle Transition Policy.
+  * Consulta Process Snapshot Builder.
+  * Puede provocar rechazo de transición.
 
-> Mermaid no soporta un nivel C4 “Code” nativo. Por ello, el nivel 4 se representa como una descomposición lógica interna del subcomponente.
+#### 9.5.4. Blocker Impact Policy
 
-```mermaid
-classDiagram
-    class DetectorBloqueos {
-      <<component>>
-    }
+* **Responsabilidad**
 
-    class CatalogoReglasBloqueo {
-      <<policy>>
-    }
+  * Traducir el efecto de los bloqueos sobre el estado del proceso.
+  * Determinar si un bloqueo es informativo, restrictivo o paralizante.
+* **Relación con otros elementos**
 
-    class EvaluadorCondiciones {
-      <<policy>>
-    }
+  * Es usada por Lifecycle Transition Policy.
+  * Consume información consolidada desde Process Snapshot Builder.
 
-    class EstadoOperativoProceso {
-      <<view>>
-    }
+#### 9.5.5. Process Snapshot Builder
 
-    class RegistroBloqueos {
-      <<coordinator>>
-    }
+* **Responsabilidad**
 
-    class RepositorioBloqueos {
-      <<repository>>
-    }
+  * Construir una visión consistente del proceso a partir de entidades relacionadas.
+  * Reunir vacancy, aplicaciones, entrevistas, feedback y bloqueos para evaluación.
+* **Relación con otros elementos**
 
-    class PublicadorEventos {
-      <<publisher>>
-    }
+  * Alimenta a Readiness Validator y Blocker Impact Policy.
+  * Obtiene datos a través de repositorios lógicos del dominio.
 
-    DetectorBloqueos --> CatalogoReglasBloqueo : usa
-    DetectorBloqueos --> EvaluadorCondiciones : delega
-    DetectorBloqueos --> RegistroBloqueos : actualiza
+#### 9.5.6. State Consistency Guard
 
-    EvaluadorCondiciones --> EstadoOperativoProceso : evalúa
-    RegistroBloqueos --> RepositorioBloqueos : persiste
-    RegistroBloqueos --> PublicadorEventos : publica cambios
+* **Responsabilidad**
+
+  * Garantizar que el cambio de estado preserve invariantes del dominio.
+  * Evitar conflictos entre estado del proceso, bloqueos abiertos y acciones pendientes.
+* **Relación con otros elementos**
+
+  * Se ejecuta antes de confirmar cambios decididos por Lifecycle Transition Policy.
+  * Autoriza o rechaza la persistencia en Process Context Repository.
+
+#### 9.5.7. Process Context Repository
+
+* **Responsabilidad**
+
+  * Persistir y recuperar el estado operativo agregado del proceso.
+* **Relación con otros elementos**
+
+  * Es usado por Process Lifecycle Coordinator a través del aggregate.
+  * Colabora con State Consistency Guard para confirmar escritura consistente.
+
+#### 9.5.8. Audit Event Registrar
+
+* **Responsabilidad**
+
+  * Registrar evidencias de transición y decisiones operativas relevantes.
+* **Relación con otros elementos**
+
+  * Recibe cambios aceptados desde Lifecycle Transition Policy.
+  * Envía trazabilidad a Orchestration Audit Trail.
+
+```plantuml
+@startuml C4_Process_Lifecycle_Internal
+title C4 - Logical Internal Decomposition - Process Lifecycle Coordinator
+
+rectangle "Process Lifecycle Coordinator" {
+  component "Process Context Aggregate" as aggregate
+  component "Lifecycle Transition Policy" as transition
+  component "Readiness Validator" as readiness
+  component "Blocker Impact Policy" as blockerImpact
+  component "Process Snapshot Builder" as snapshot
+  component "State Consistency Guard" as consistency
+  component "Process Context Repository" as repository
+  component "Audit Event Registrar" as auditRegistrar
+}
+
+transition --> aggregate : evalúa / evoluciona
+transition --> readiness : valida precondiciones
+transition --> blockerImpact : evalúa efecto de bloqueos
+readiness --> snapshot : solicita visión consolidada
+blockerImpact --> snapshot : solicita visión consolidada
+transition --> consistency : propone cambio de estado
+consistency --> repository : autoriza persistencia
+repository --> aggregate : carga / guarda contexto
+transition --> auditRegistrar : registra transición aceptada
+auditRegistrar --> repository : referencia estado persistido
+
+@enduml
 ```
 
----
+## 9.6. Decisiones de diseño
 
-## 9.6 Nota final sobre la notación
+### Por qué esta descomposición tiene sentido
 
-Esta vista incluye:
+* Se separa la **coordinación del estado** de la **evaluación de reglas** y de la **persistencia**, lo que evita un componente monolítico.
+* El núcleo lógico gira alrededor de un **contexto de proceso agregado**, adecuado para un dominio donde varias entidades influyen sobre una única capacidad: avanzar o bloquear el proceso.
+* Las políticas y validadores permiten modelar reglas del negocio sin mezclar responsabilidades de lectura, decisión y auditoría.
 
-* **C1** — Contexto
-* **C2** — Contenedores
-* **C3** — Componentes
-* **C4** — Descomposición lógica interna del subcomponente más relevante
+### Qué responsabilidades se mantienen dentro de Orquestación del Proceso
 
-Los niveles C1, C2 y C3 se modelan con notación **C4 en Mermaid**, compatible con `mermaid.live`.
-El nivel C4 se representa como una aproximación arquitectónica lógica mediante `classDiagram`, ya que Mermaid no dispone de un tipo nativo equivalente al nivel “Code” del modelo C4 clásico.
+Dentro de este módulo quedan:
+
+* control del estado operativo de la vacante en ejecución,
+* gestión de bloqueos y acciones derivadas,
+* validación de condiciones para avanzar,
+* consolidación de la trazabilidad operativa.
+
+Fuera de este módulo permanecen:
+
+* definición de vacante y criterios de alineación,
+* captura detallada de feedback y evaluación,
+* consolidación final del debrief y decisión.
+
+### Cómo se preserva consistencia del estado
+
+* El avance del proceso no depende de una sola entidad aislada, sino de un **contexto agregado**.
+* Toda transición pasa por:
+
+  * validación de readiness,
+  * evaluación de impacto de bloqueos,
+  * guardas de consistencia antes de persistir.
+* La auditoría se registra como consecuencia de una transición aceptada, evitando discrepancias entre estado actual y evidencia histórica.
+
+## 9.7. Diagramas en PlantUML
+
+### C1 Context Diagram
+
+```plantuml
+@startuml C1_LTI_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title C1 - System Context Diagram - LTI
+
+Person(hr, "HR / Recruiter", "Configura y opera procesos de contratación")
+Person(hm, "Hiring Manager", "Alinea la vacante, sigue el proceso y decide")
+Person(interviewer, "Interviewer", "Conduce entrevistas y emite feedback estructurado")
+Person(stakeholder, "Leadership / Stakeholder", "Consulta estado y decisión final")
+
+System(lti, "LTI", "Plataforma SaaS de recruiting / ATS para alineación, orquestación, evaluación y decisión auditable")
+
+Rel(hr, lti, "Gestiona vacantes, bloqueos y decisiones")
+Rel(hm, lti, "Participa en alineación, seguimiento y cierre")
+Rel(interviewer, lti, "Registra feedback guiado")
+Rel(stakeholder, lti, "Consulta debriefs y decisiones")
+
+@enduml
+```
+
+### C2 Container Diagram
+
+```plantuml
+@startuml C2_LTI_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title C2 - Container Diagram - LTI
+
+Person(hr, "HR / Recruiter")
+Person(hm, "Hiring Manager")
+Person(interviewer, "Interviewer")
+Person(stakeholder, "Leadership / Stakeholder")
+
+System_Boundary(lti, "LTI") {
+    Container(web, "Aplicación Web LTI", "Web Application", "Interfaz de operación para HR, hiring managers e interviewers")
+    Container(vacancy, "Gestión de Vacantes y Alineación", "Application Module", "Gestiona Vacancy, VacancyAlignment y EvaluationCriterion")
+    Container(orchestration, "Orquestación del Proceso", "Application Module", "Coordina estado operativo, bloqueos y acciones del proceso")
+    Container(feedback, "Evaluación y Feedback", "Application Module", "Gestiona Interview, Feedback y FeedbackCriterionAssessment")
+    Container(debrief, "Gestión de Debrief y Decisión", "Application Module", "Consolida Debrief y decisión final")
+    Container(ai, "Inteligencia Asistiva", "Application Module", "Apoyo analítico y síntesis auditable")
+    ContainerDb(storage, "Almacenamiento del Dominio", "Logical Data Store", "Persistencia de entidades de dominio")
+}
+
+Rel(hr, web, "Usa")
+Rel(hm, web, "Usa")
+Rel(interviewer, web, "Usa")
+Rel(stakeholder, web, "Usa")
+
+Rel(web, vacancy, "Consulta y actualiza")
+Rel(web, orchestration, "Consulta y actualiza")
+Rel(web, feedback, "Consulta y actualiza")
+Rel(web, debrief, "Consulta y actualiza")
+
+Rel(vacancy, storage, "Lee / escribe")
+Rel(orchestration, storage, "Lee / escribe")
+Rel(feedback, storage, "Lee / escribe")
+Rel(debrief, storage, "Lee / escribe")
+Rel(ai, storage, "Lee contexto auditable")
+
+Rel(vacancy, orchestration, "Entrega contexto de vacante y alineación")
+Rel(vacancy, feedback, "Entrega criterios y contexto evaluativo")
+Rel(orchestration, feedback, "Coordina hitos operativos y seguimiento")
+Rel(feedback, debrief, "Entrega evidencia evaluativa")
+Rel(orchestration, debrief, "Entrega estado operativo y bloqueos")
+Rel(orchestration, ai, "Solicita apoyo analítico")
+Rel(feedback, ai, "Solicita síntesis comparativa")
+Rel(debrief, ai, "Solicita síntesis auditable")
+
+@enduml
+```
+
+### C3 Component Diagram de Orquestación del Proceso
+
+```plantuml
+@startuml C3_Orquestacion_Componentes
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C3 - Component Diagram - Orquestación del Proceso
+
+Container(web, "Aplicación Web LTI", "Web Application")
+Container(vacancy, "Gestión de Vacantes y Alineación", "Application Module")
+Container(feedback, "Evaluación y Feedback", "Application Module")
+Container(debrief, "Gestión de Debrief y Decisión", "Application Module")
+ContainerDb(storage, "Almacenamiento del Dominio", "Logical Data Store")
+
+Container_Boundary(orchestration, "Orquestación del Proceso") {
+    Component(lifecycle, "Process Lifecycle Coordinator", "Orchestration Component", "Coordina estado y transiciones del proceso")
+    Component(blockers, "Blocker Management", "Domain/Application Component", "Gestiona bloqueos operativos")
+    Component(actions, "Action Tracking", "Domain/Application Component", "Gestiona acciones derivadas")
+    Component(timeline, "Process Timeline Assembler", "Read Model Component", "Construye cronología operativa")
+    Component(readiness, "Operational Readiness Policy", "Policy Component", "Evalúa condiciones para avanzar")
+    Component(audit, "Orchestration Audit Trail", "Audit Component", "Mantiene trazabilidad operativa")
+}
+
+Rel(web, lifecycle, "Opera proceso")
+Rel(web, blockers, "Gestiona bloqueos")
+Rel(web, actions, "Gestiona acciones")
+Rel(web, timeline, "Consulta timeline")
+
+Rel(vacancy, lifecycle, "Entrega contexto de vacante y alineación")
+Rel(vacancy, readiness, "Entrega condiciones de alineación")
+Rel(feedback, lifecycle, "Entrega señales de evaluación")
+Rel(feedback, readiness, "Entrega estado de entrevistas/feedback")
+Rel(lifecycle, blockers, "Crea o actualiza bloqueos")
+Rel(blockers, actions, "Genera acciones")
+Rel(actions, lifecycle, "Retroalimenta avance")
+Rel(lifecycle, readiness, "Valida avance")
+Rel(lifecycle, audit, "Registra cambios")
+Rel(blockers, audit, "Registra cambios")
+Rel(actions, audit, "Registra cambios")
+Rel(timeline, storage, "Lee")
+Rel(lifecycle, storage, "Lee / escribe")
+Rel(blockers, storage, "Lee / escribe")
+Rel(actions, storage, "Lee / escribe")
+Rel(audit, storage, "Escribe")
+Rel(lifecycle, debrief, "Entrega estado operativo")
+Rel(blockers, debrief, "Entrega evidencia de bloqueos")
+Rel(timeline, debrief, "Entrega secuencia del proceso")
+
+@enduml
+```
+
+### C4 Diagram del subcomponente interno elegido
+
+```plantuml
+@startuml C4_Process_Lifecycle_Internal
+title C4 - Logical Internal Decomposition - Process Lifecycle Coordinator
+
+rectangle "Process Lifecycle Coordinator" {
+  component "Process Context Aggregate" as aggregate
+  component "Lifecycle Transition Policy" as transition
+  component "Readiness Validator" as readiness
+  component "Blocker Impact Policy" as blockerImpact
+  component "Process Snapshot Builder" as snapshot
+  component "State Consistency Guard" as consistency
+  component "Process Context Repository" as repository
+  component "Audit Event Registrar" as auditRegistrar
+}
+
+transition --> aggregate : evalúa / evoluciona
+transition --> readiness : valida precondiciones
+transition --> blockerImpact : evalúa efecto de bloqueos
+readiness --> snapshot : solicita visión consolidada
+blockerImpact --> snapshot : solicita visión consolidada
+transition --> consistency : propone cambio de estado
+consistency --> repository : autoriza persistencia
+repository --> aggregate : carga / guarda contexto
+transition --> auditRegistrar : registra transición aceptada
+auditRegistrar --> repository : referencia estado persistido
+
+@enduml
+```

@@ -579,7 +579,7 @@ Para la visualización de los plantUml  --> https://plantuml.com/
 
 ## Prompt 9 - Modelo de datos 
 
-```` text
+```` markdown
 Contexto:
 Estás definiendo el MVP de un producto SaaS llamado LTI, una plataforma de recruiting / ATS para empresas medianas y grandes.
 
@@ -603,6 +603,7 @@ Restricciones:
 - Evitar entidades genéricas sin valor de dominio (ej: “Log”, “GenericEntity”)
 - No modelar detalles físicos de base de datos (índices, particionado, etc.)
 - Mantener un nivel lógico/conceptual, no técnico de implementación
+- Explicitar restricciones lógicas del dominio cuando sean necesarias para preservar cardinalidades o coherencia entre entidades, especialmente en relaciones 1:1
 
 ---
 
@@ -662,6 +663,22 @@ Condiciones:
 
 ---
 
+## 3.b Reglas de integridad del dominio
+
+Incluye únicamente las reglas lógicas imprescindibles para mantener la coherencia del modelo.
+
+Debes incluir cuando aplique:
+- Cómo se materializan las relaciones 1:1 a nivel lógico (ej: unicidad)
+- Consistencia entre referencias relacionadas (ej: cuando una entidad referencia a otra y a su agregado padre)
+- Casos donde una entidad es única y mutable (sin histórico) en el MVP
+
+Condiciones:
+- No describir SQL, ORM ni detalles físicos
+- No hablar de índices concretos ni optimización
+- Mantenerlo en nivel lógico, pero explícito
+
+---
+
 ## 4. Diagrama ER del modelo
 
 - Generar un diagrama en Mermaid (ERD) o PlantUML
@@ -680,6 +697,11 @@ Criterios de calidad:
 - Debe ser entendible por perfiles de producto y técnicos
 - Nombres de entidades y atributos claros y consistentes
 - Evitar modelar “futuro”, centrarse en el MVP
+
+Antes de generar la respuesta final, revisa que:
+- No haya relaciones 1:1 sin soporte lógico explícito
+- No haya atributos redundantes sin justificación
+- No haya inconsistencias entre entidades, relaciones y casos de uso
 
 ---
 
@@ -928,7 +950,7 @@ Condiciones para el nivel 4:
 - qué responsabilidades se mantienen dentro de Orquestación del Proceso
 - cómo se preserva consistencia del estado
 
-7. Diagramas en PlantUML o Mermaid
+7. Diagramas en PlantUML
 Genera:
 - C1 Context Diagram
 - C2 Container Diagram
@@ -936,14 +958,14 @@ Genera:
 - C4 Diagram del subcomponente interno elegido
 
 Condiciones:
-- usar PlantUML o Mermaid
+- usar PlantUML 
 - diagramas válidos y consistentes entre sí
 - listos para entregar
 - tono profesional y claro
 
 Formato de salida:
 - un único documento en Markdown
-- cada diagrama en bloque ```plantuml o ```mermaid
+- cada diagrama en bloque ```plantuml 
 - sin explicaciones fuera del documento final
 
 Limita la explicación textual a lo necesario para acompañar los diagramas. Prioriza precisión sobre exhaustividad.
