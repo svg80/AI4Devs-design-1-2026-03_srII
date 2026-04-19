@@ -1,15 +1,15 @@
 - [Asistentes](#asistentes)
-  - [Prompt 1 - Invstigación](#prompt-1---invstigación)
+  - [Prompt 1 - Investigación](#prompt-1---investigación)
   - [Prompt 2 - Investigación](#prompt-2---investigación)
-  - [Prompt 3  - Investigación](#prompt-3----investigación)
+  - [Prompt 3 - Investigación](#prompt-3---investigación)
   - [Prompt 4 - Brainstorming diferencial](#prompt-4---brainstorming-diferencial)
-  - [Prompt 6 - Priorización y enfoque](#prompt-6---priorización-y-enfoque)
-  - [Prompt 7 - Definición del producto](#prompt-7---definición-del-producto)
-  - [Prompt 9 - Lean Canvas](#prompt-9---lean-canvas)
-  - [Promto 10 - Descripción de casos de uso y diagramas](#promto-10---descripción-de-casos-de-uso-y-diagramas)
-  - [Prompt 11 - Modelo de datos](#prompt-11---modelo-de-datos)
-  - [Prompt 12 - Diseño del sistema a alto nivel](#prompt-12---diseño-del-sistema-a-alto-nivel)
-  - [Prompt 13 - Diagrama en C4 de uno de los componentes](#prompt-13---diagrama-en-c4-de-uno-de-los-componentes)
+  - [Prompt 5 - Priorización y enfoque](#prompt-5---priorización-y-enfoque)
+  - [Prompt 6 - Definición del producto](#prompt-6---definición-del-producto)
+  - [Prompt 7 - Lean Canvas](#prompt-7---lean-canvas)
+  - [Prompt 8 - Descripción de casos de uso y diagramas](#prompt-8---descripción-de-casos-de-uso-y-diagramas)
+  - [Prompt 9 - Modelo de datos](#prompt-9---modelo-de-datos)
+  - [Prompt 10 - Diseño del sistema a alto nivel](#prompt-10---diseño-del-sistema-a-alto-nivel)
+  - [Prompt 11 - Diagrama en C4 de uno de los componentes](#prompt-11---diagrama-en-c4-de-uno-de-los-componentes)
 
 
 # Asistentes
@@ -17,23 +17,23 @@
 * ChatDiagram para contstruir Lean Canvas
 
 
-## Prompt 1 - Invstigación
-```
+## Prompt 1 - Investigación
+```` text
 Eres un experto en producto, con experiencia en ATS - Applicant-Tracking-System, incluyo una imagen para ampliar el contexto de lo que es un ATS. ¿Qué funcionalidades básicas tiene un ATS - Applicant-Tracking-System? Descríbelas en un listado, ordenado de mayor a menor prioridad.
-```
+````
 
 ## Prompt 2 - Investigación
-```
+```` text
 ¿Qué beneficios obtiene el cliente de un ATS para considerar su uso?
-```
+````
 
-## Prompt 3  - Investigación
-```
+## Prompt 3 - Investigación
+```` text
 ¿Qué alternativas tiene a usar un ATS y cuándo pueden ser relevantes?
-```
+````
 
 ## Prompt 4 - Brainstorming diferencial
-```
+```` text
 Contexto:
 Estás diseñando un producto SaaS llamado LTI (plataforma de recruiting / ATS).
 
@@ -76,10 +76,10 @@ Además:
    - Big bets (IA avanzada)
 2. Prioriza dentro de cada grupo
 3. Señala cuáles podrían convertirse en ventajas competitivas reales frente a Greenhouse, Lever y Workday
-```
+````
 
-## Prompt 6 - Priorización y enfoque
-```
+## Prompt 5 - Priorización y enfoque
+```` text
 Contexto:
 Estás diseñando un producto SaaS llamado LTI (plataforma de recruiting / ATS).
 
@@ -336,11 +336,11 @@ Salida:
 Condiciones:
 - Sé crítico: menos es más
 - Enfócate en MVP con alto valor
-```
+````
 
 
-## Prompt 7 - Definición del producto
-```
+## Prompt 6 - Definición del producto
+```` markdown
 # Contexto
 
 Estás definiendo el MVP de un producto SaaS llamado **LTI** (plataforma de recruiting / ATS).
@@ -418,15 +418,14 @@ Para cada función:
 - Si algo no aporta diferenciación clara, simplifícalo
 
 Devuélveme el documento final en markdown listo para entregar, con tono profesional y sin redundancias
-```
+````
 
-## Prompt 9 - Lean Canvas
-```
+## Prompt 7 - Lean Canvas
 Genera un diagrama Lean Canvas alineado estrictamente con el MVP definido, sin introducir nuevas funcionalidades ni hipótesis genéricas.
-```
+
 La salida de este promp de Chatgpt la inserté en ChatDiagram
 
-```
+```` markdown
 # Lean Canvas — LTI (MVP)
 
 ## 1. Problemas
@@ -513,10 +512,10 @@ Plataforma que reduce bloqueos operativos en procesos de selección, alinea a HR
 - Integración de IA en puntos críticos de decisión (no en todo el flujo)
 - Trazabilidad completa de decisiones (auditable)
 - Dependencia baja de datos históricos para generar valor desde el inicio
-```
+````
 
-## Promto 10 - Descripción de casos de uso y diagramas
-```
+## Prompt 8 - Descripción de casos de uso y diagramas
+```` text
 Contexto:
 Estás definiendo el MVP de un producto SaaS llamado LTI, una plataforma de recruiting / ATS orientada a empresas medianas y grandes.
 
@@ -573,14 +572,14 @@ Formato de salida:
 
 Importante:
 Cada diagrama debe representar únicamente el caso de uso descrito en su bloque, sin mezclar otros casos de uso no explicados.
-```
+````
 
 Para la visualización de los plantUml  --> https://plantuml.com/
 
 
-## Prompt 11 - Modelo de datos 
+## Prompt 9 - Modelo de datos 
 
-```
+```` text
 Contexto:
 Estás definiendo el MVP de un producto SaaS llamado LTI, una plataforma de recruiting / ATS para empresas medianas y grandes.
 
@@ -693,10 +692,10 @@ Formato de salida:
 - Tono profesional, claro y sin redundancias
 
 Limita el modelo a un máximo de 12–15 entidades principales
-```
+````
 
-## Prompt 12 - Diseño del sistema a alto nivel
-```
+## Prompt 10 - Diseño del sistema a alto nivel
+```` text
 Contexto:
 Estás definiendo el MVP de un producto SaaS llamado LTI, una plataforma de recruiting / ATS orientada a empresas medianas y grandes.
 
@@ -832,10 +831,10 @@ Formato de salida:
 - Tono profesional, claro y sin redundancias
 
 Limita cada flujo de interacción a máximo 8–10 líneas
-```
+````
 
-## Prompt 13 - Diagrama en C4 de uno de los componentes
-```
+## Prompt 11 - Diagrama en C4 de uno de los componentes
+```` text
 Contexto:
 Estás definiendo el MVP de un producto SaaS llamado LTI, una plataforma de recruiting / ATS orientada a empresas medianas y grandes.
 
@@ -929,7 +928,7 @@ Condiciones para el nivel 4:
 - qué responsabilidades se mantienen dentro de Orquestación del Proceso
 - cómo se preserva consistencia del estado
 
-7. Diagramas en PlantUML
+7. Diagramas en PlantUML o Mermaid
 Genera:
 - C1 Context Diagram
 - C2 Container Diagram
@@ -937,15 +936,15 @@ Genera:
 - C4 Diagram del subcomponente interno elegido
 
 Condiciones:
-- usar PlantUML
+- usar PlantUML o Mermaid
 - diagramas válidos y consistentes entre sí
 - listos para entregar
 - tono profesional y claro
 
 Formato de salida:
 - un único documento en Markdown
-- cada diagrama en bloque ```plantuml
+- cada diagrama en bloque ```plantuml o ```mermaid
 - sin explicaciones fuera del documento final
 
 Limita la explicación textual a lo necesario para acompañar los diagramas. Prioriza precisión sobre exhaustividad.
-```
+````
