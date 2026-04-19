@@ -725,7 +725,7 @@ Representa la consolidación final de evaluación de una candidatura, incluyendo
 
 ---
 
-## 7.3.b Reglas de integridad del dominio
+## 7.4 Reglas de integridad del dominio
 
 * La relación **`Vacancy -> VacancyAlignment`** se materializa lógicamente como una única alineación por vacante. En el MVP, `VacancyAlignment` es una entidad única y mutable por vacante, sin histórico.
 * La relación **`Interview -> Feedback`** se materializa lógicamente como una única evaluación principal por entrevista. No pueden existir varios feedbacks principales para la misma entrevista.
@@ -736,7 +736,7 @@ Representa la consolidación final de evaluación de una candidatura, incluyendo
 
 ---
 
-## 7.4. Diagrama ER del modelo
+## 7.5 Diagrama ER del modelo
 
 ```mermaid
 erDiagram
@@ -1140,11 +1140,6 @@ Se profundiza en **Orquestación del Proceso** porque concentra el control opera
   * Conduce entrevistas dentro del proceso de selección.
   * Usa LTI para emitir feedback guiado y comparativo.
 
-* **Leadership / Stakeholder de contratación**
-
-  * Consulta estado, riesgos y decisiones finales cuando aplica.
-  * Usa LTI como soporte auditable del proceso.
-
 ### Relación con LTI
 
 LTI actúa como plataforma central de recruiting/ATS para:
@@ -1162,14 +1157,12 @@ title C1 - System Context Diagram - LTI
 Person(hr, "HR / Recruiter", "Configura y opera procesos de contratación")
 Person(hm, "Hiring Manager", "Alinea la vacante, sigue el proceso y decide")
 Person(interviewer, "Interviewer", "Conduce entrevistas y emite feedback estructurado")
-Person(stakeholder, "Leadership / Stakeholder", "Consulta estado y decisión final")
 
 System(lti, "LTI", "Plataforma SaaS de recruiting / ATS para alineación, orquestación, evaluación y decisión auditable")
 
 Rel(hr, lti, "Gestiona vacantes, bloqueos y decisiones")
 Rel(hm, lti, "Participa en alineación, seguimiento y cierre")
 Rel(interviewer, lti, "Registra feedback guiado")
-Rel(stakeholder, lti, "Consulta debriefs y decisiones")
 
 @enduml
 ```
@@ -1257,7 +1250,6 @@ title C2 - Container Diagram - LTI
 Person(hr, "HR / Recruiter")
 Person(hm, "Hiring Manager")
 Person(interviewer, "Interviewer")
-Person(stakeholder, "Leadership / Stakeholder")
 
 System_Boundary(lti, "LTI") {
     Container(web, "Aplicación Web LTI", "Web Application", "Interfaz de operación para HR, hiring managers e interviewers")
@@ -1272,7 +1264,6 @@ System_Boundary(lti, "LTI") {
 Rel(hr, web, "Usa")
 Rel(hm, web, "Usa")
 Rel(interviewer, web, "Usa")
-Rel(stakeholder, web, "Usa")
 
 Rel(web, vacancy, "Consulta y actualiza")
 Rel(web, orchestration, "Consulta y actualiza")
@@ -1518,7 +1509,7 @@ Se elige porque es el núcleo de coordinación del módulo. Es el responsable de
 * **Responsabilidad**
 
   * Construir una visión consistente del proceso a partir de entidades relacionadas.
-  * Reunir vacancy, aplicaciones, entrevistas, feedback y bloqueos para evaluación.
+  * Reunir vacante, aplicaciones, entrevistas, feedback y bloqueos para evaluación.
 * **Relación con otros elementos**
 
   * Alimenta a Readiness Validator y Blocker Impact Policy.
@@ -1630,14 +1621,12 @@ title C1 - System Context Diagram - LTI
 Person(hr, "HR / Recruiter", "Configura y opera procesos de contratación")
 Person(hm, "Hiring Manager", "Alinea la vacante, sigue el proceso y decide")
 Person(interviewer, "Interviewer", "Conduce entrevistas y emite feedback estructurado")
-Person(stakeholder, "Leadership / Stakeholder", "Consulta estado y decisión final")
 
 System(lti, "LTI", "Plataforma SaaS de recruiting / ATS para alineación, orquestación, evaluación y decisión auditable")
 
 Rel(hr, lti, "Gestiona vacantes, bloqueos y decisiones")
 Rel(hm, lti, "Participa en alineación, seguimiento y cierre")
 Rel(interviewer, lti, "Registra feedback guiado")
-Rel(stakeholder, lti, "Consulta debriefs y decisiones")
 
 @enduml
 ```
@@ -1653,7 +1642,6 @@ title C2 - Container Diagram - LTI
 Person(hr, "HR / Recruiter")
 Person(hm, "Hiring Manager")
 Person(interviewer, "Interviewer")
-Person(stakeholder, "Leadership / Stakeholder")
 
 System_Boundary(lti, "LTI") {
     Container(web, "Aplicación Web LTI", "Web Application", "Interfaz de operación para HR, hiring managers e interviewers")
@@ -1668,7 +1656,6 @@ System_Boundary(lti, "LTI") {
 Rel(hr, web, "Usa")
 Rel(hm, web, "Usa")
 Rel(interviewer, web, "Usa")
-Rel(stakeholder, web, "Usa")
 
 Rel(web, vacancy, "Consulta y actualiza")
 Rel(web, orchestration, "Consulta y actualiza")
